@@ -1,0 +1,7 @@
+/logs
+/.data
+/www/socket
+/dbdata
+*.lock
+vendor/
+vendor12313123/

@@ -1,0 +1,191 @@
+<?php if (isset($_SESSION['auth']) && $_SESSION['auth']): ?>
+    <?php //var_dump($_SESSION) ?>
+    <div class="contact_list">
+        <div class="users_search">
+            <form class="form_search" action="/home/search" method="post" name="form_search">
+                <input type="search" name="search">
+                <input type="submit" value="Поиск">
+            </form>
+            <span class="users_search_error">Пользователь не найден</span>
+            <input class="form_contacts_submit" type="submit" value="Добавить контакт" form="form_contacts">
+
+        </div>
+        <div class="users_list">
+            <ul id="users_list">
+                <?php if (is_array($payload['contacts'])): ?>
+                    <?php foreach ($payload['contacts'] as $user): ?>
+                        <li id="userId<?php echo $user['id'] ?>">
+                            <img class="photo"
+                                src="<?php echo isset($user['avatar']) ? '/assets/img/temp/' . $user['avatar'] : '/assets/img/user.jpg' ?>"
+                                alt="avatar">
+                            <div id="messages"></div>
+                            <div class="status"></div>
+                            <a href="/" data-user-id="<?php echo $user['id'] ?>">
+                                <?php echo (bool) $user['display'] ? $user['nickname'] : $user['email'] ?>
+                            </a>
+                        </li>
+                    <?php endforeach ?>
+                <?php endif ?>
+            </ul>
+        </div>
+        <div class="group_list">
+            <ul>
+                <?php if (is_array($payload['groups'])): ?>
+                    <?php foreach ($payload['groups'] as $group): ?>
+                        <li id="groupId<?php echo $group['group_id'] ?>">
+                            <a href="/chat/group/<?php echo $group['group_id'] ?>" data-group-id="<?php echo $group['group_id'] ?>" style="width: 100%;">Групповой чат №<?php echo $group['group_id'] ?></a>
+                        </li>
+                    <?php endforeach ?>
+                <?php endif ?>
+            </ul>
+        </div>
+    </div>
+    <div class="chat_window">
+        <div class="message_window">
+        </div>
+        <form id="message_form" action="#"></form>
+        <div class="input-group input_window">
+            <input type="text" class="form-control" aria-label="With textarea" style="height: 100%;" name="messageInput"
+                form="message_form" placeholder="Перенос строки Ctrl+Enter" required>
+            <!-- <input type="text" class="form-control" id="message_input" name="message" form="message_form" autocomplete="off"> -->
+            <input type="hidden" name="toUserId" form="message_form">
+            <!-- <input type="hidden" name="connectionId" form="message_form"> -->
+            <div class="input-group-append">
+                <button class="btn btn-info" type="submit" id="button-addon2" form="message_form"
+                    disabled>Отправить</button>
+            </div>
+        </div>
+    </div>
+    <div class="user_profile">
+        <div>
+            <span> Привет,
+                <?php echo $this->session->get('nickname') . '!' ?>
+            </span>
+        </div>
+        <div>
+            <a class="nav-link" href="/about">Профиль</a>
+        </div>
+        <div>
+            <a class="nav-link" href="/groups">Создать группу</a>
+        </div>
+        <div>
+            <a class="nav-link" href="/admin/exit">
+                Выход
+                <img src="/assets/img/exit.png" class="exit" alt="exit">
+            </a>
+        </div>
+    </div>
+    <form id="form_contacts" class="form_contacts" action="/home/contact" method="post" name="form_contacts">
+        <input type="text" name="contact">
+    </form>
+<?php endif ?>
+
+<?php if (!isset($_SESSION['auth']) && !isset($_GET['register'])): ?>
+    <div class="login_in">
+        <div class="form_login_in">
+            <form method="post" action="/admin/loginIn">
+                <h4 style="text-align: center;">Авторизация</h4><br>
+                <div class="form-group">
+                    <label <?php if (isset($_GET['auth']) && $_GET['auth'] === 'notFound')
+                        echo 'style="color:red;"' ?>>Электронная почта</label>
+                        <input <?php if (isset($_GET['auth']) && $_GET['auth'] === 'notFound')
+                        echo 'style="border-color:red;"' ?>
+                            type="email" class="form-control" name="login"
+                            placeholder="<?php echo isset($_GET['auth']) && $_GET['auth'] === 'notFound' ? 'Пользователь не найден' : 'Email' ?>"
+                        required>
+                </div>
+                <div class="form-group">
+                    <label <?php if (isset($_GET['auth']) && $_GET['auth'] === 'passError')
+                        echo 'style="color:red;"' ?>>Пароль</label>
+                        <input <?php if (isset($_GET['auth']) && $_GET['auth'] === 'passError')
+                        echo 'style="border-color:red;"' ?> type="password" class="form-control" name="password"
+                            placeholder="<?php echo isset($_GET['auth']) && $_GET['auth'] === 'passError' ? 'Неверный пароль' : 'Password' ?>"
+                        required>
+                </div>
+                <div class="form-group">
+                    <input type="hidden" class="form-control" name="token" value="<?php echo $_SESSION["CSRF"] ?>">
+                </div>
+                <div class="form-group form-check">
+                    <input type="checkbox" class="form-check-input" name="save" checked>
+                    <label class="form-check-label" for="exampleCheck1">Запомнить</label><br>
+                </div>
+                <div style="width: 100%;display:flex;justify-content: center; margin-top: 15px;">
+                    <button type="submit" class="btn btn-primary">Войти</button>
+                </div>
+            </form>
+            <!-- <br> -->
+            <div style="width: 100%;display:flex;justify-content: center; margin-top: 10px;">
+                <a class="btn btn-primary" style="color: white;" href="/admin/registerVk">Войти через VK</a>
+            </div>
+            <div style="width: 100%;display:flex;justify-content: center; margin-top: 10px;">
+                <a class="btn btn-primary" style="color: white;" href="/?register=1">Регистрация</a>
+            </div>
+        </div>
+    </div>
+<?php endif ?>
+<?php if (isset($_GET['register']) && (boolean) $_GET['register']): ?>
+    <div class="login_in">
+        <div class="form_login_in">
+            <form method="post" action="/admin/register">
+                <h4 style="text-align: center;">Регистрация</h4><br>
+                <div class="form-group">
+                    <label>Имя</label>
+                    <input type="text" class="form-control" name="name" placeholder="Введите Имя"
+                        value="<?php echo $_GET['name'] ?? '' ?>" required>
+                </div>
+                <div class="form-group">
+                    <label>Прозвище</label>
+                    <input type="text" class="form-control" name="nickname" placeholder="Nickname"
+                        value="<?php echo $_GET['nickname'] ?? '' ?>">
+                </div>
+                <div class="form-group">
+                    <label <?php if (isset($_GET['register']) && $_GET['register'] === 'exists')
+                        echo 'style="color:red;"' ?>>Электронная почта</label>
+                        <input <?php if (isset($_GET['register']) && $_GET['register'] === 'exists')
+                        echo 'style="border-color:red;"' ?> type="email" class="form-control" name="email"
+                            placeholder="<?php echo isset($_GET['register']) && $_GET['register'] === 'exists' ? 'Данный email уже зарегистрирован' : 'Email' ?>"
+                        value="<?php echo $_GET['email'] ?? '' ?>" required>
+                </div>
+                <div class="form-group">
+                    <label <?php if (isset($_GET['register']) && $_GET['register'] === 'pass')
+                        echo 'style="color:red;"' ?>>Пароль</label>
+                        <input type="password" class="form-control" name="password"
+                            placeholder="<?php echo isset($_GET['register']) && $_GET['register'] === 'pass' ? 'Пароли не совпадают' : 'Password' ?>"
+                        required>
+                </div>
+                <div class="form-group">
+                    <label <?php if (isset($_GET['register']) && $_GET['register'] === 'pass')
+                        echo 'style="color:red;"' ?>>Подтвердите пароль</label>
+                        <input type="password" class="form-control" name="passwordConfirm"
+                            placeholder="<?php echo isset($_GET['register']) && $_GET['register'] === 'pass' ? 'Пароли не совпадают' : 'Password confirm' ?>"
+                        required>
+                </div>
+                <div class="form-group">
+                    <input type="hidden" class="form-control" name="token" value="<?php echo $_SESSION["CSRF"] ?>">
+                </div>
+                <div class="form-group form-check">
+                    <input type="checkbox" class="form-check-input" name="save" checked>
+                    <label class="form-check-label" for="exampleCheck1">Запомнить</label><br>
+                </div>
+                <div style="width: 100%;display:flex;justify-content: center; margin-top: 15px;">
+                    <button type="submit" class="btn btn-primary">Регистрация</button>
+                </div>
+            </form>
+        </div>
+    </div>
+<?php endif ?>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
+    crossorigin="anonymous"></script>
+
+<script defer src="/assets/js/main.js"></script>
+<script defer src="/assets/js/ws.js"></script>
+
+<div class="pup_up_add_group">
+    <div class="pop_up_form">
+        <form action="/group" method="post">
+
+        </form>
+    </div>
+</div>

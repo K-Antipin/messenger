@@ -1,0 +1,60 @@
+version: '3'
+
+services:
+    php:
+        build:
+            context: php8-fpm
+            # args:
+                # TIMEZONE: ${TIMEZONE}
+        ports:
+            - 8888:8888
+        volumes:
+            - ./www:/var/www/html
+            - ./logs:/var/www/app/logs
+        command: sh -c "composer install && php-fpm"
+        container_name: php
+        networks:
+            - app-network
+    nginx:
+        build: nginx
+        ports:
+            - 80:80
+        volumes_from:
+            - php
+        volumes:
+            - ./logs/nginx/:/var/log/nginx
+        container_name: nginx
+        networks:
+            - app-network
+    db:
+        build:
+            context: ./mysql
+            dockerfile: Dockerfile
+        image: mysql:8
+        container_name: db
+        ports:
+            - "3306:3306"
+        # описываем, какую БД мы создаём
+        environment:
+            MYSQL_DATABASE: ${MYSQL_DATABASE}
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+            MYSQL_ROOT_USER: ${MYSQL_ROOT_USER}
+        volumes:
+            - ./dbdata:/var/lib/mysql
+        command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
+        networks:
+            - app-network
+    phpmyadmin:
+        image: phpmyadmin
+        restart: always
+        ports:
+            - 8070:80
+        environment:
+            - PMA_ARBITRARY=1
+        container_name: phpmyadmin
+        networks:
+            - app-network
+#Docker Networks
+networks:
+    app-network:
+        driver: bridge

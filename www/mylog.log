@@ -1,0 +1,1 @@
+[2023-09-25T11:06:57.868387+00:00] mylogger.INFO: Auth error {"mess":"Пользователь не найден","login":"sdfsdf@sdfsf","password":"testsdgs"} []

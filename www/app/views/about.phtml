@@ -1,0 +1,52 @@
+<div class="about_body">
+  <div class="about_info">
+    <div style="display: flex; flex-direction: column; align-items: center;">
+      <div class="about_avatar">
+        <?php if (isset($payload['avatar'])) { ?>
+          <img src="/assets/img/temp/<?php echo  $payload['avatar'] ?> "
+            style="width: 150px; max-width: 100%; height: auto; display: block;">'
+        <?php } ?>
+      </div>
+      <br>
+      <div>
+        <a href="/about/delete/<?php echo $payload['avatar'] ?>">
+          <button>Удалить аватар</button>
+        </a>
+      </div>
+      <form name="about_file" action="/about/update" method="post" enctype="multipart/form-data">
+        <input type="file" name="avatar">
+      </form>
+    </div>
+    <form name="about_form" action="/about/update" method="post">
+      <div>
+        <span>Имя</span>
+        <input type="text" name="name" value="<?= $payload['name'] ?>" placeholder="Имя">
+      </div>
+      <div>
+        <span>Nickname</span>
+        <input type="text" name="nickname" value="<?= $payload['nickname'] ?>" placeholder="Nickname">
+      </div>
+      <div>
+        <span>Email</span>
+        <input type="text" name="email" value="<?= $payload['email'] ?>" disabled>
+      </div>
+      <?php if (!empty($payload['nickname'])): ?>
+        <div>
+          <span>Отображать nickname</span>
+          <input type="checkbox" name="checkbox" <?php if ((bool) $payload['display'])
+            echo 'checked'; ?>>
+        </div>
+      <?php endif ?>
+      <div>
+        <span>Включить уведомления</span>
+        <input type="checkbox" name="notification" <?php if ((bool) $payload['notification'])
+          echo 'checked'; ?>>
+      </div>
+      <input type="submit" value="Сохранить">
+      <br>
+      <input class="about_home" type="button" value="Вернуться">
+    </form>
+    <?php //var_dump($payload) ?>
+  </div>
+</div>
+<script defer src="/assets/js/main.js"></script>

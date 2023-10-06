@@ -1,0 +1,35 @@
+<?php if (!isset($_SESSION['auth']) && !$_SESSION['auth'])
+    header('Location: /') ?>
+
+    <div class="contact_list">
+        <div class="users_list">
+            <ul id="users_list">
+            </ul>
+        </div>
+        <div class="group_list">
+            <ul>
+                <li>
+                    <img class="photo" src="/assets/img/user.jpg">
+                    <a href="/chat/group/1">Группа 1</a>
+                </li>
+            </ul>
+        </div>
+        <div class="d-flex justify-content-center align-items-center bg-info user_profile"><a class="nav-link text-white"
+                href="/about">
+            <?= htmlspecialchars($_SESSION['name']) ?>
+        </a>
+    </div>
+</div>
+<div class="chat_window">
+    <div class="message_window">
+        <p>
+            <?php var_dump($payload) ?>
+        </p>
+    </div>
+    <div class="input-group input_window">
+        <textarea class="form-control" aria-label="With textarea"></textarea>
+        <div class="input-group-append">
+            <button class="btn btn-info" type="button" id="button-addon2">Отправить</button>
+        </div>
+    </div>
+</div>
