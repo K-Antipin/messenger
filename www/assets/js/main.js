@@ -83,7 +83,7 @@ contextmenu.forEach((el) => {
                             event.preventDefault();
                             event.stopPropagation();
                             if (document.querySelector('.message_menu')) document.querySelector('.message_menu').remove();
-                            let menu = [{ text: 'Удалить сообщение' }, { text: 'Редактировать сообщение' }];
+                            let menu = [{ text: 'Удалить сообщение' }, { text: 'Редактировать сообщение' }, { text: 'Переслать сообщение' }];
                             createMessageUnder(event.pageX, event.pageY, event, menu);
                         });
                         p.innerHTML = '<span>' + res.text + '</span>' + '<span> :' + (parseInt(res.display) ? res.nickname : res.email) + '</span>';
@@ -150,8 +150,18 @@ function createMessageUnder(x, y, event, data = false) {
                             el,
                             '/groups/add'
                         ).then(result => {
-                            if (result) console.log(result)
+                            console.log(result);
                         });
+                    }
+                    if (el.action === 'forwardmessage') {
+                        let obj = {
+                            fromUserId: userId,
+                            toUserId: el.user_id,
+                            groupId: null,
+                            action: 'PrivateMessage',
+                            text: el.mess
+                        }
+                        socket.send(JSON.stringify(obj));
                     }
                     if (eventDiv.target.textContent === 'Удалить сообщение') {
                         sendData(
@@ -161,6 +171,19 @@ function createMessageUnder(x, y, event, data = false) {
                             if (result) console.log('Сообщение удалено.')
                         });
                         event.target.parentNode.remove();
+                    }
+                    if (eventDiv.target.textContent === 'Переслать сообщение') {
+                        let contact_list = JSON.parse(document.querySelector('#contact_list_hidden').textContent);
+                        let menu = new Array;
+                        contact_list.forEach(el => {
+                            menu.push({
+                                text: parseInt(el.display) ? el.nickname : el.email,
+                                user_id: el.id,
+                                mess: event.target.textContent,
+                                action: 'forwardmessage'
+                            });
+                        });
+                        setTimeout(() => { createMessageUnder(x, y, event, menu) }, 10);
                     }
                     if (eventDiv.target.textContent === 'Редактировать сообщение') {
                         isEdit = true;
@@ -198,26 +221,17 @@ function createMessageUnder(x, y, event, data = false) {
                 }
 
                 if (eventDiv.target.textContent === 'Добавить в группу') {
-                    let objData = new Object;
-                    objData.table = 'groups';
-
-                    sendData(
-                        objData,
-                        '/home/addgroup'
-                    ).then(result => {
-                        if (result) {
-                            let menu = new Array;
-                            result.forEach(el => {
-                                menu.push({
-                                    text: 'Групповой чат № ' + el.group_id,
-                                    user_id: event.target.getAttribute('data-user-id'),
-                                    group_id: el.group_id,
-                                    action: 'addgroup'
-                                });
-                            });
-                            createMessageUnder(x, y, event, menu);
-                        }
+                    let contact_list = JSON.parse(document.querySelector('#groups_list_hidden').textContent);
+                    let menu = new Array;
+                    contact_list.forEach(el => {
+                        menu.push({
+                            text: 'Групповой чат № ' + el.group_id,
+                            user_id: event.target.getAttribute('data-user-id'),
+                            group_id: el.group_id,
+                            action: 'addgroup'
+                        });
                     });
+                    setTimeout(() => { createMessageUnder(x, y, event, menu) }, 10);
                 }
             }));
 

@@ -183,7 +183,7 @@
     integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
     crossorigin="anonymous"></script>
 
-<script defer src="/assets/js/main.js"></script>
+<!-- <script defer src="/assets/js/main.js"></script> -->
 <script defer src="/assets/js/ws.js"></script>
 
 <div class="pup_up_add_group">
@@ -193,3 +193,6 @@
         </form>
     </div>
 </div>
+
+<div style="display: none;" id="contact_list_hidden"> <?php echo json_encode($payload['contacts']) ?></div>
+<div style="display: none;" id="groups_list_hidden"> <?php echo json_encode($payload['groups']) ?></div>
